@@ -1,13 +1,125 @@
 {
-    "atomType": "Molecule",
-    "x": 0,
-    "y": 0,
-    "uniqueID": "id-448",
-    "name": "Filet_Vertical_Edges",
-    "topLevel": true,
-    "allAtoms": [],
-    "allConnectors": [],
-    "unitsKey": "MM",
-    "fileTypeVersion": 1,
-    "filetypeVersion": 1
+  "atomType": "Molecule",
+  "x": 0,
+  "y": 0,
+  "uniqueID": "id-448",
+  "name": "Filet_Vertical_Edges",
+  "ioValues": [
+    {
+      "name": "Shape",
+      "ioValue": "__GEOMETRY_INPUT__"
+    },
+    {
+      "name": "Radius",
+      "ioValue": 10
+    }
+  ],
+  "topLevel": true,
+  "allAtoms": [
+    {
+      "atomType": "Output",
+      "x": 0.98,
+      "y": 0.5,
+      "uniqueID": "id-449",
+      "ioValues": [
+        {
+          "name": "number or geometry",
+          "ioValue": "__GEOMETRY_INPUT__"
+        }
+      ]
+    },
+    {
+      "atomType": "Code",
+      "x": 0.5178571428571428,
+      "y": 0.5292479108635098,
+      "uniqueID": "id-451",
+      "ioValues": [
+        {
+          "name": "shape",
+          "ioValue": "__GEOMETRY_INPUT__"
+        },
+        {
+          "name": "radius",
+          "ioValue": 10
+        }
+      ],
+      "codeVersion": 1,
+      "code": "const Inputs = [\n  { inputName: \"shape\", type: \"geometry\", defaultValue: null },\n  { inputName: \"radius\", type: \"number\", defaultValue: 2 },\n];\n\nlet assembly = library[shape];\n\nreturn await AssemblyMap(assembly, async (leaf) => {\n  let solid = leaf.geometry[0];\n  let filleted = solid.fillet(radius, (e) => e.inDirection(\"Z\"));\n  return { ...leaf, geometry: [filleted] };\n});\n"
+    },
+    {
+      "atomType": "Input",
+      "x": 0.025384615384615384,
+      "y": 0.44846796657381616,
+      "uniqueID": "id-455",
+      "name": "Shape",
+      "type": "geometry"
+    },
+    {
+      "atomType": "Input",
+      "x": 0.025384615384615384,
+      "y": 0.6462395543175488,
+      "uniqueID": "id-458",
+      "name": "Radius"
+    },
+    {
+      "atomType": "Rectangle",
+      "x": 0.2976190476190476,
+      "y": 0.3259052924791086,
+      "uniqueID": "id-461",
+      "ioValues": [
+        {
+          "name": "x length",
+          "ioValue": 100,
+          "currentEquation": "100"
+        },
+        {
+          "name": "y length",
+          "ioValue": 100,
+          "currentEquation": "100"
+        }
+      ]
+    },
+    {
+      "atomType": "Extrude",
+      "x": 0.39761904761904765,
+      "y": 0.3259052924791086,
+      "uniqueID": "id-465",
+      "ioValues": [
+        {
+          "name": "geometry",
+          "ioValue": "__GEOMETRY_INPUT__"
+        },
+        {
+          "name": "height",
+          "ioValue": 100,
+          "currentEquation": "100"
+        }
+      ]
+    }
+  ],
+  "allConnectors": [
+    {
+      "ap2Name": "number or geometry",
+      "ap1ID": "id-451",
+      "ap2ID": "id-449"
+    },
+    {
+      "ap2Name": "shape",
+      "ap1ID": "id-455",
+      "ap2ID": "id-451"
+    },
+    {
+      "ap2Name": "radius",
+      "ap1ID": "id-458",
+      "ap2ID": "id-451"
+    },
+    {
+      "ap2Name": "geometry",
+      "ap1ID": "id-461",
+      "ap2ID": "id-465"
+    }
+  ],
+  "unitsKey": "MM",
+  "fileTypeVersion": 1,
+  "filetypeVersion": 1
 }
