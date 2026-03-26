@@ -16,10 +16,6 @@
     {
       "name": "Bounding_Box",
       "ioValue": "__GEOMETRY_INPUT__"
-    },
-    {
-      "name": "Use_bounding",
-      "ioValue": 10
     }
   ],
   "topLevel": true,
@@ -167,8 +163,8 @@
     },
     {
       "atomType": "Code",
-      "x": 0.5225988700564972,
-      "y": 0.6445783132530121,
+      "x": 0.530426884650318,
+      "y": 0.5271084337349398,
       "uniqueID": "id-529",
       "ioValues": [
         {
@@ -186,17 +182,14 @@
       ],
       "codeVersion": 1,
       "code": "const Inputs = [\n  { inputName: \"shape\", type: \"geometry\", defaultValue: null },\n  { inputName: \"radius\", type: \"number\", defaultValue: 2 },\n  { inputName: \"region\", type: \"geometry\", defaultValue: null },\n];\n\nlet assembly = library[shape];\nconsole.log(region)\nlet edgeFilter;\nif (region !== '__GEOMETRY_INPUT__') {\n  let bounds = await GetBounds(region);\n  edgeFilter = (e) => e.inDirection(\"Z\").inBox(bounds.min, bounds.max);\n} else {\n  edgeFilter = (e) => e.inDirection(\"Z\");\n}\n\nreturn await AssemblyMap(assembly, async (leaf) => {\n  let solid = leaf.geometry[0];\n  let filleted = solid.fillet(radius, edgeFilter);\n  return { ...leaf, geometry: [filleted] };\n});\n"
-    },
-    {
-      "atomType": "Input",
-      "x": 0.025384615384615384,
-      "y": 0.5019462465245598,
-      "uniqueID": "id-534",
-      "name": "Use_bounding",
-      "type": "boolean"
     }
   ],
   "allConnectors": [
+    {
+      "ap2Name": "shape",
+      "ap1ID": "id-455",
+      "ap2ID": "id-529"
+    },
     {
       "ap2Name": "radius",
       "ap1ID": "id-458",
@@ -206,11 +199,6 @@
       "ap2Name": "geometry",
       "ap1ID": "id-461",
       "ap2ID": "id-465"
-    },
-    {
-      "ap2Name": "shape",
-      "ap1ID": "id-465",
-      "ap2ID": "id-529"
     },
     {
       "ap2Name": "geometry",
