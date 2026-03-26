@@ -87,8 +87,8 @@
     },
     {
       "atomType": "Extrude",
-      "x": 0.4187853107344633,
-      "y": 0.23493975903614459,
+      "x": 0.4159604519774011,
+      "y": 0.2319277108433735,
       "uniqueID": "id-465",
       "ioValues": [
         {
@@ -102,31 +102,9 @@
       ]
     },
     {
-      "atomType": "Code",
-      "x": 0.556497175141243,
-      "y": 0.4397590361445783,
-      "uniqueID": "id-471",
-      "ioValues": [
-        {
-          "name": "shape",
-          "ioValue": "__GEOMETRY_INPUT__"
-        },
-        {
-          "name": "radius",
-          "ioValue": 10
-        },
-        {
-          "name": "region",
-          "ioValue": "__GEOMETRY_INPUT__"
-        }
-      ],
-      "codeVersion": 1,
-      "code": "const Inputs = [\n  { inputName: \"shape\", type: \"geometry\", defaultValue: null },\n  { inputName: \"radius\", type: \"number\", defaultValue: 2 },\n  { inputName: \"region\", type: \"geometry\", defaultValue: null },\n];\n\nlet assembly = library[shape];\n\nlet edgeFilter;\nif (region !== null) {\n  let bounds = await GetBounds(region);\n  edgeFilter = (e) => e.inDirection(\"Z\").inBox(bounds.min, bounds.max);\n} else {\n  edgeFilter = (e) => e.inDirection(\"Z\");\n}\n\nreturn await AssemblyMap(assembly, async (leaf) => {\n  let solid = leaf.geometry[0];\n  let filleted = solid.fillet(radius, edgeFilter);\n  return { ...leaf, geometry: [filleted] };\n});\n"
-    },
-    {
       "atomType": "Rectangle",
-      "x": 0.2754237288135593,
-      "y": 0.7680722891566265,
+      "x": 0.1963276836158192,
+      "y": 0.8132530120481928,
       "uniqueID": "id-476",
       "ioValues": [
         {
@@ -141,8 +119,8 @@
     },
     {
       "atomType": "Extrude",
-      "x": 0.3728813559322034,
-      "y": 0.7650602409638555,
+      "x": 0.3135593220338983,
+      "y": 0.8042168674698795,
       "uniqueID": "id-480",
       "ioValues": [
         {
@@ -157,8 +135,8 @@
     },
     {
       "atomType": "Move",
-      "x": 0.46539548022598876,
-      "y": 0.8222891566265061,
+      "x": 0.3764124293785311,
+      "y": 0.8945783132530121,
       "uniqueID": "id-484",
       "ioValues": [
         {
@@ -189,8 +167,8 @@
     },
     {
       "atomType": "Code",
-      "x": 0.4470338983050847,
-      "y": 0.6144578313253012,
+      "x": 0.5225988700564972,
+      "y": 0.6445783132530121,
       "uniqueID": "id-529",
       "ioValues": [
         {
@@ -207,7 +185,7 @@
         }
       ],
       "codeVersion": 1,
-      "code": "const Inputs = [\n  { inputName: \"shape\", type: \"geometry\", defaultValue: null },\n  { inputName: \"radius\", type: \"number\", defaultValue: 2 },\n  { inputName: \"region\", type: \"geometry\", defaultValue: null },\n];\n\nlet assembly = library[shape];\n\nlet edgeFilter;\nif (region !== null) {\n  let bounds = await GetBounds(region);\n  edgeFilter = (e) => e.inDirection(\"Z\").inBox(bounds.min, bounds.max);\n} else {\n  edgeFilter = (e) => e.inDirection(\"Z\");\n}\n\nreturn await AssemblyMap(assembly, async (leaf) => {\n  let solid = leaf.geometry[0];\n  let filleted = solid.fillet(radius, edgeFilter);\n  return { ...leaf, geometry: [filleted] };\n});\n"
+      "code": "const Inputs = [\n  { inputName: \"shape\", type: \"geometry\", defaultValue: null },\n  { inputName: \"radius\", type: \"number\", defaultValue: 2 },\n  { inputName: \"region\", type: \"geometry\", defaultValue: null },\n];\n\nlet assembly = library[shape];\nconsole.log(region)\nlet edgeFilter;\nif (region !== '__GEOMETRY_INPUT__') {\n  let bounds = await GetBounds(region);\n  edgeFilter = (e) => e.inDirection(\"Z\").inBox(bounds.min, bounds.max);\n} else {\n  edgeFilter = (e) => e.inDirection(\"Z\");\n}\n\nreturn await AssemblyMap(assembly, async (leaf) => {\n  let solid = leaf.geometry[0];\n  let filleted = solid.fillet(radius, edgeFilter);\n  return { ...leaf, geometry: [filleted] };\n});\n"
     },
     {
       "atomType": "Input",
@@ -219,16 +197,6 @@
     }
   ],
   "allConnectors": [
-    {
-      "ap2Name": "shape",
-      "ap1ID": "id-455",
-      "ap2ID": "id-471"
-    },
-    {
-      "ap2Name": "radius",
-      "ap1ID": "id-458",
-      "ap2ID": "id-471"
-    },
     {
       "ap2Name": "radius",
       "ap1ID": "id-458",
@@ -245,11 +213,6 @@
       "ap2ID": "id-529"
     },
     {
-      "ap2Name": "number or geometry",
-      "ap1ID": "id-471",
-      "ap2ID": "id-449"
-    },
-    {
       "ap2Name": "geometry",
       "ap1ID": "id-476",
       "ap2ID": "id-480"
@@ -262,12 +225,12 @@
     {
       "ap2Name": "region",
       "ap1ID": "id-490",
-      "ap2ID": "id-471"
+      "ap2ID": "id-529"
     },
     {
-      "ap2Name": "region",
-      "ap1ID": "id-490",
-      "ap2ID": "id-529"
+      "ap2Name": "number or geometry",
+      "ap1ID": "id-529",
+      "ap2ID": "id-449"
     }
   ],
   "unitsKey": "MM",
