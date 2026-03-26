@@ -16,6 +16,10 @@
     {
       "name": "Bounding_Box",
       "ioValue": "__GEOMETRY_INPUT__"
+    },
+    {
+      "name": "Use_bounding",
+      "ioValue": 10
     }
   ],
   "topLevel": true,
@@ -34,8 +38,8 @@
     },
     {
       "atomType": "Code",
-      "x": 0.5509259259259259,
-      "y": 0.2590529247910863,
+      "x": 0.6115819209039548,
+      "y": 0.17469879518072287,
       "uniqueID": "id-451",
       "ioValues": [
         {
@@ -53,7 +57,7 @@
     {
       "atomType": "Input",
       "x": 0.025384615384615384,
-      "y": 0.42618384401114207,
+      "y": 0.15384615384615385,
       "uniqueID": "id-455",
       "name": "Shape",
       "type": "geometry"
@@ -61,32 +65,30 @@
     {
       "atomType": "Input",
       "x": 0.025384615384615384,
-      "y": 0.6211699164345404,
+      "y": 0.25301204819277107,
       "uniqueID": "id-458",
       "name": "Radius"
     },
     {
       "atomType": "Rectangle",
-      "x": 0.2976190476190476,
-      "y": 0.3259052924791086,
+      "x": 0.3290960451977401,
+      "y": 0.16265060240963855,
       "uniqueID": "id-461",
       "ioValues": [
         {
           "name": "x length",
-          "ioValue": 100,
-          "currentEquation": "100"
+          "ioValue": 100
         },
         {
           "name": "y length",
-          "ioValue": 100,
-          "currentEquation": "100"
+          "ioValue": 100
         }
       ]
     },
     {
       "atomType": "Extrude",
-      "x": 0.39761904761904765,
-      "y": 0.3259052924791086,
+      "x": 0.4187853107344633,
+      "y": 0.23493975903614459,
       "uniqueID": "id-465",
       "ioValues": [
         {
@@ -95,15 +97,14 @@
         },
         {
           "name": "height",
-          "ioValue": 100,
-          "currentEquation": "100"
+          "ioValue": 100
         }
       ]
     },
     {
       "atomType": "Code",
-      "x": 0.6058201058201058,
-      "y": 0.6350974930362118,
+      "x": 0.556497175141243,
+      "y": 0.4397590361445783,
       "uniqueID": "id-471",
       "ioValues": [
         {
@@ -124,26 +125,24 @@
     },
     {
       "atomType": "Rectangle",
-      "x": 0.27050264550264547,
-      "y": 0.9526462395543175,
+      "x": 0.2754237288135593,
+      "y": 0.7680722891566265,
       "uniqueID": "id-476",
       "ioValues": [
         {
           "name": "x length",
-          "ioValue": 100,
-          "currentEquation": "100"
+          "ioValue": 100
         },
         {
           "name": "y length",
-          "ioValue": 100,
-          "currentEquation": "100"
+          "ioValue": 100
         }
       ]
     },
     {
       "atomType": "Extrude",
-      "x": 0.37050264550264544,
-      "y": 0.9526462395543175,
+      "x": 0.3728813559322034,
+      "y": 0.7650602409638555,
       "uniqueID": "id-480",
       "ioValues": [
         {
@@ -152,15 +151,14 @@
         },
         {
           "name": "height",
-          "ioValue": 150,
-          "currentEquation": "150"
+          "ioValue": 150
         }
       ]
     },
     {
       "atomType": "Move",
-      "x": 0.5,
-      "y": 0.8969359331476323,
+      "x": 0.46539548022598876,
+      "y": 0.8222891566265061,
       "uniqueID": "id-484",
       "ioValues": [
         {
@@ -169,13 +167,11 @@
         },
         {
           "name": "xDist",
-          "ioValue": 20,
-          "currentEquation": "20"
+          "ioValue": 20
         },
         {
           "name": "yDist",
-          "ioValue": 20,
-          "currentEquation": "20"
+          "ioValue": 20
         },
         {
           "name": "zDist",
@@ -186,10 +182,40 @@
     {
       "atomType": "Input",
       "x": 0.025384615384615384,
-      "y": 0.8662952646239555,
+      "y": 0.40963855421686746,
       "uniqueID": "id-490",
       "name": "Bounding_Box",
       "type": "geometry"
+    },
+    {
+      "atomType": "Code",
+      "x": 0.4470338983050847,
+      "y": 0.6144578313253012,
+      "uniqueID": "id-529",
+      "ioValues": [
+        {
+          "name": "shape",
+          "ioValue": "__GEOMETRY_INPUT__"
+        },
+        {
+          "name": "radius",
+          "ioValue": 10
+        },
+        {
+          "name": "region",
+          "ioValue": "__GEOMETRY_INPUT__"
+        }
+      ],
+      "codeVersion": 1,
+      "code": "const Inputs = [\n  { inputName: \"shape\", type: \"geometry\", defaultValue: null },\n  { inputName: \"radius\", type: \"number\", defaultValue: 2 },\n  { inputName: \"region\", type: \"geometry\", defaultValue: null },\n];\n\nlet assembly = library[shape];\n\nlet edgeFilter;\nif (region !== null) {\n  let bounds = await GetBounds(region);\n  edgeFilter = (e) => e.inDirection(\"Z\").inBox(bounds.min, bounds.max);\n} else {\n  edgeFilter = (e) => e.inDirection(\"Z\");\n}\n\nreturn await AssemblyMap(assembly, async (leaf) => {\n  let solid = leaf.geometry[0];\n  let filleted = solid.fillet(radius, edgeFilter);\n  return { ...leaf, geometry: [filleted] };\n});\n"
+    },
+    {
+      "atomType": "Input",
+      "x": 0.025384615384615384,
+      "y": 0.5019462465245598,
+      "uniqueID": "id-534",
+      "name": "Use_bounding",
+      "type": "boolean"
     }
   ],
   "allConnectors": [
@@ -204,9 +230,19 @@
       "ap2ID": "id-471"
     },
     {
+      "ap2Name": "radius",
+      "ap1ID": "id-458",
+      "ap2ID": "id-529"
+    },
+    {
       "ap2Name": "geometry",
       "ap1ID": "id-461",
       "ap2ID": "id-465"
+    },
+    {
+      "ap2Name": "shape",
+      "ap1ID": "id-465",
+      "ap2ID": "id-529"
     },
     {
       "ap2Name": "number or geometry",
@@ -227,6 +263,11 @@
       "ap2Name": "region",
       "ap1ID": "id-490",
       "ap2ID": "id-471"
+    },
+    {
+      "ap2Name": "region",
+      "ap1ID": "id-490",
+      "ap2ID": "id-529"
     }
   ],
   "unitsKey": "MM",
