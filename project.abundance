@@ -33,24 +33,6 @@
       ]
     },
     {
-      "atomType": "Code",
-      "x": 0.45857988165680474,
-      "y": 0.3871951219512195,
-      "uniqueID": "id-451",
-      "ioValues": [
-        {
-          "name": "shape",
-          "ioValue": "__GEOMETRY_INPUT__"
-        },
-        {
-          "name": "radius",
-          "ioValue": 2
-        }
-      ],
-      "codeVersion": 1,
-      "code": "const Inputs = [\n  { inputName: \"shape\", type: \"geometry\", defaultValue: null },\n  { inputName: \"radius\", type: \"number\", defaultValue: 2 },\n];\n\nlet assembly = library[shape];\n\nreturn await AssemblyMap(assembly, async (leaf) => {\n  let solid = leaf.geometry[0];\n  let filleted = solid.fillet(radius, (e) => e.inDirection(\"Z\"));\n  return { ...leaf, geometry: [filleted] };\n});\n"
-    },
-    {
       "atomType": "Input",
       "x": 0.025384615384615384,
       "y": 0.15384615384615385,
@@ -67,8 +49,8 @@
     },
     {
       "atomType": "Rectangle",
-      "x": 0.3290960451977401,
-      "y": 0.16265060240963855,
+      "x": 0.2863284608770421,
+      "y": 0.1798780487804878,
       "uniqueID": "id-461",
       "ioValues": [
         {
@@ -83,8 +65,8 @@
     },
     {
       "atomType": "Extrude",
-      "x": 0.4159604519774011,
-      "y": 0.2319277108433735,
+      "x": 0.40240756663800514,
+      "y": 0.3170731707317073,
       "uniqueID": "id-465",
       "ioValues": [
         {
@@ -98,74 +80,10 @@
       ]
     },
     {
-      "atomType": "Rectangle",
-      "x": 0.1963276836158192,
-      "y": 0.8132530120481928,
-      "uniqueID": "id-476",
-      "ioValues": [
-        {
-          "name": "x length",
-          "ioValue": 100
-        },
-        {
-          "name": "y length",
-          "ioValue": 100
-        }
-      ]
-    },
-    {
-      "atomType": "Extrude",
-      "x": 0.3135593220338983,
-      "y": 0.8042168674698795,
-      "uniqueID": "id-480",
-      "ioValues": [
-        {
-          "name": "geometry",
-          "ioValue": "__GEOMETRY_INPUT__"
-        },
-        {
-          "name": "height",
-          "ioValue": 150
-        }
-      ]
-    },
-    {
-      "atomType": "Move",
-      "x": 0.3764124293785311,
-      "y": 0.8945783132530121,
-      "uniqueID": "id-484",
-      "ioValues": [
-        {
-          "name": "geometry",
-          "ioValue": "__GEOMETRY_INPUT__"
-        },
-        {
-          "name": "xDist",
-          "ioValue": 20
-        },
-        {
-          "name": "yDist",
-          "ioValue": 20
-        },
-        {
-          "name": "zDist",
-          "ioValue": 0
-        }
-      ]
-    },
-    {
-      "atomType": "Input",
-      "x": 0.025384615384615384,
-      "y": 0.3384615384615385,
-      "uniqueID": "id-490",
-      "name": "Bounding_Box",
-      "type": "geometry"
-    },
-    {
       "atomType": "Code",
-      "x": 0.4250493096646943,
-      "y": 0.6067073170731707,
-      "uniqueID": "id-529",
+      "x": 0.590713671539123,
+      "y": 0.45121951219512196,
+      "uniqueID": "id-471",
       "ioValues": [
         {
           "name": "shape",
@@ -180,25 +98,101 @@
           "ioValue": "__GEOMETRY_INPUT__"
         }
       ],
-      "codeVersion": 1,
-      "code": "const Inputs = [\n  { inputName: \"shape\", type: \"geometry\", defaultValue: null },\n  { inputName: \"radius\", type: \"number\", defaultValue: 2 },\n  { inputName: \"region\", type: \"geometry\", defaultValue: null },\n];\n\nlet assembly = library[shape];\nconsole.log(region)\nlet edgeFilter;\nif (region !== '__GEOMETRY_INPUT__') {\n  let bounds = await GetBounds(region);\n  edgeFilter = (e) => e.inDirection(\"Z\").inBox(bounds.min, bounds.max);\n} else {\n  edgeFilter = (e) => e.inDirection(\"Z\");\n}\n\nreturn await AssemblyMap(assembly, async (leaf) => {\n  let solid = leaf.geometry[0];\n  let filleted = solid.fillet(radius, edgeFilter);\n  return { ...leaf, geometry: [filleted] };\n});\n"
+      "interpreterVersion": 1,
+      "code": "/**\n * Fillets edges on geometry with optional region-based filtering.\n * If a region is provided, only fillets edges within that bounding box.\n * All parameters have defaults for immediate use.\n */\nfunction run(\n  shape: Assembly,\n  radius: number = 2,\n  region?: Assembly\n){\n  // ── Step 1: Determine edge filter based on region ──────────────────\n  let edgeFilter: (e: any) => boolean;\n  \n  if (region) {\n    // Get bounding box from region geometry\n    const regionGeometry = region.geometry;\n    if (Array.isArray(regionGeometry) && regionGeometry[0]) {\n      const bounds = regionGeometry[0].boundingBox?.();\n      if (bounds) {\n        edgeFilter = (e) => e.inDirection(\"Z\").inBox(bounds.min, bounds.max);\n      } else {\n        edgeFilter = (e) => e.inDirection(\"Z\");\n      }\n    } else {\n      edgeFilter = (e) => e.inDirection(\"Z\");\n    }\n  } else {\n    // No region: fillet only vertical (Z-direction) edges\n    edgeFilter = (e) => e.inDirection(\"Z\");\n  }\n\n  // ── Step 2: Apply fillet to each leaf geometry ──────────────────\n  const filletedAssembly = new Assembly(shape).onLeafs((leaf) => {\n    if (leaf.is3D()) {\n      leaf.geometry = leaf.geometry.fillet(radius, edgeFilter);\n    }\n    return leaf;\n  });\n\n  return filletedAssembly;\n}",
+      "compiledCode": "\"use strict\";\n/**\n * Fillets edges on geometry with optional region-based filtering.\n * If a region is provided, only fillets edges within that bounding box.\n * All parameters have defaults for immediate use.\n */\nfunction run(shape, radius = 2, region) {\n    // ── Step 1: Determine edge filter based on region ──────────────────\n    let edgeFilter;\n    if (region) {\n        // Get bounding box from region geometry\n        const regionGeometry = region.geometry;\n        if (Array.isArray(regionGeometry) && regionGeometry[0]) {\n            const bounds = regionGeometry[0].boundingBox?.();\n            if (bounds) {\n                edgeFilter = (e) => e.inDirection(\"Z\").inBox(bounds.min, bounds.max);\n            }\n            else {\n                edgeFilter = (e) => e.inDirection(\"Z\");\n            }\n        }\n        else {\n            edgeFilter = (e) => e.inDirection(\"Z\");\n        }\n    }\n    else {\n        // No region: fillet only vertical (Z-direction) edges\n        edgeFilter = (e) => e.inDirection(\"Z\");\n    }\n    // ── Step 2: Apply fillet to each leaf geometry ──────────────────\n    const filletedAssembly = new Assembly(shape).onLeafs((leaf) => {\n        if (leaf.is3D()) {\n            leaf.geometry = leaf.geometry.fillet(radius, edgeFilter);\n        }\n        return leaf;\n    });\n    return filletedAssembly;\n}\n"
+    },
+    {
+      "atomType": "Rectangle",
+      "x": 0.14875322441960448,
+      "y": 0.850609756097561,
+      "uniqueID": "id-476",
+      "ioValues": [
+        {
+          "name": "x length",
+          "ioValue": 100,
+          "currentEquation": "100"
+        },
+        {
+          "name": "y length",
+          "ioValue": 300,
+          "currentEquation": "300"
+        }
+      ]
+    },
+    {
+      "atomType": "Extrude",
+      "x": 0.2828890799656062,
+      "y": 0.8262195121951219,
+      "uniqueID": "id-480",
+      "ioValues": [
+        {
+          "name": "geometry",
+          "ioValue": "__GEOMETRY_INPUT__"
+        },
+        {
+          "name": "height",
+          "ioValue": 150,
+          "currentEquation": "150"
+        }
+      ]
+    },
+    {
+      "atomType": "Move",
+      "x": 0.4230438521066208,
+      "y": 0.8292682926829269,
+      "uniqueID": "id-484",
+      "ioValues": [
+        {
+          "name": "geometry",
+          "ioValue": "__GEOMETRY_INPUT__"
+        },
+        {
+          "name": "xDist",
+          "ioValue": 50,
+          "currentEquation": "50"
+        },
+        {
+          "name": "yDist",
+          "ioValue": 51,
+          "currentEquation": "51"
+        },
+        {
+          "name": "zDist",
+          "ioValue": -10,
+          "currentEquation": "-10"
+        }
+      ]
+    },
+    {
+      "atomType": "Input",
+      "x": 0.025384615384615384,
+      "y": 0.3384615384615385,
+      "uniqueID": "id-490",
+      "name": "Bounding_Box",
+      "type": "geometry"
     }
   ],
   "allConnectors": [
     {
-      "ap2Name": "shape",
-      "ap1ID": "id-455",
-      "ap2ID": "id-529"
-    },
-    {
       "ap2Name": "radius",
       "ap1ID": "id-458",
-      "ap2ID": "id-529"
+      "ap2ID": "id-471"
     },
     {
       "ap2Name": "geometry",
       "ap1ID": "id-461",
       "ap2ID": "id-465"
+    },
+    {
+      "ap2Name": "shape",
+      "ap1ID": "id-465",
+      "ap2ID": "id-471"
+    },
+    {
+      "ap2Name": "number or geometry",
+      "ap1ID": "id-471",
+      "ap2ID": "id-449"
     },
     {
       "ap2Name": "geometry",
@@ -212,13 +206,8 @@
     },
     {
       "ap2Name": "region",
-      "ap1ID": "id-490",
-      "ap2ID": "id-529"
-    },
-    {
-      "ap2Name": "number or geometry",
-      "ap1ID": "id-529",
-      "ap2ID": "id-449"
+      "ap1ID": "id-484",
+      "ap2ID": "id-471"
     }
   ],
   "unitsKey": "MM",

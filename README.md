@@ -4,6 +4,13 @@
 
 ![](/project.svg)
 
+## Inputs
+
+- **Shape** (geometry)
+- **Radius** (number)
+- **Bounding_Box** (geometry)
+
+
 
 
  
