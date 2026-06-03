@@ -6,8 +6,8 @@
 
 ## Inputs
 
-- **Shape** (geometry)
 - **Radius** (number)
+- **Shape** (geometry)
 - **Bounding_Box** (geometry)
 
 

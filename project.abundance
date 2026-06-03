@@ -6,12 +6,12 @@
   "name": "Filet_Vertical_Edges",
   "ioValues": [
     {
-      "name": "Shape",
-      "ioValue": "__GEOMETRY_INPUT__"
+      "name": "Radius",
+      "ioValue": 10
     },
     {
-      "name": "Radius",
-      "ioValue": 9
+      "name": "Shape",
+      "ioValue": "__GEOMETRY_INPUT__"
     },
     {
       "name": "Bounding_Box",
@@ -49,8 +49,8 @@
     },
     {
       "atomType": "Rectangle",
-      "x": 0.2863284608770421,
-      "y": 0.1798780487804878,
+      "x": 0.29578675838349094,
+      "y": 0.18292682926829268,
       "uniqueID": "id-461",
       "ioValues": [
         {
@@ -65,8 +65,8 @@
     },
     {
       "atomType": "Extrude",
-      "x": 0.40240756663800514,
-      "y": 0.3170731707317073,
+      "x": 0.39761904761904765,
+      "y": 0.3259052924791086,
       "uniqueID": "id-465",
       "ioValues": [
         {
@@ -81,8 +81,8 @@
     },
     {
       "atomType": "Code",
-      "x": 0.5941530524505588,
-      "y": 0.4054878048780488,
+      "x": 0.6061908856405847,
+      "y": 0.6310975609756098,
       "uniqueID": "id-471",
       "ioValues": [
         {
@@ -91,39 +91,36 @@
         },
         {
           "name": "radius",
-          "ioValue": 9
+          "ioValue": 10
         },
         {
           "name": "region",
           "ioValue": "__GEOMETRY_INPUT__"
         }
       ],
-      "interpreterVersion": 1,
-      "code": "/**\n * Fillets vertical (Z-direction) edges on geometry with optional region-based filtering.\n * If a region is provided, only fillets edges within that bounding box.\n */\nfunction run(\n  shape: Assembly,\n  radius: number = 2,\n  region?: Assembly\n){\n  // ── Step 1: Determine edge filter based on region ──────────────────\n  let edgeFilter: (e: any) => any;\n\n  if (region) {\n    try {\n      // Extract geometry from region (could be Assembly or direct 3D shape)\n      let regionGeo = region.geometry;\n\n      // If it's an array, get the first element\n      if (Array.isArray(regionGeo)) {\n        regionGeo = regionGeo[0];\n      }\n      console.log(regionGeo.boundingBox)\n      // Get bounding box from the 3D shape\n      const bounds = regionGeo.boundingBox.bounds\n      if (bounds) {\n        console.log(\"bounding\")\n        edgeFilter = (e) => e.inDirection(\"Z\").inBox(bounds[0], bounds[1]);\n      } else {\n        edgeFilter = (e) => e.inDirection(\"Z\");\n      }\n    } catch (err) {\n      // Fallback if bounds extraction fails\n      edgeFilter = (e) => e.inDirection(\"Z\");\n    }\n  } else {\n    // No region: fillet only vertical (Z-direction) edges\n    edgeFilter = (e) => e.inDirection(\"Z\");\n  }\n\n  // ── Step 2: Apply fillet to each leaf geometry ──────────────────\n  const filletedAssembly = new Assembly(shape).onLeafs((leaf) => {\n    if (leaf.is3D() && Array.isArray(leaf.geometry) && leaf.geometry[0]) {\n      const solid = leaf.geometry[0];\n      const filleted = solid.fillet(radius, edgeFilter);\n      leaf.geometry = [filleted];\n    }\n    return leaf;\n  });\n\n  return filletedAssembly;\n}",
-      "compiledCode": "\"use strict\";\n/**\n * Fillets vertical (Z-direction) edges on geometry with optional region-based filtering.\n * If a region is provided, only fillets edges within that bounding box.\n */\nfunction run(shape, radius = 2, region) {\n    // ── Step 1: Determine edge filter based on region ──────────────────\n    let edgeFilter;\n    if (region) {\n        try {\n            // Extract geometry from region (could be Assembly or direct 3D shape)\n            let regionGeo = region.geometry;\n            // If it's an array, get the first element\n            if (Array.isArray(regionGeo)) {\n                regionGeo = regionGeo[0];\n            }\n            console.log(regionGeo.boundingBox);\n            // Get bounding box from the 3D shape\n            const bounds = regionGeo.boundingBox.bounds;\n            if (bounds) {\n                console.log(\"bounding\");\n                edgeFilter = (e) => e.inDirection(\"Z\").inBox(bounds[0], bounds[1]);\n            }\n            else {\n                edgeFilter = (e) => e.inDirection(\"Z\");\n            }\n        }\n        catch (err) {\n            // Fallback if bounds extraction fails\n            edgeFilter = (e) => e.inDirection(\"Z\");\n        }\n    }\n    else {\n        // No region: fillet only vertical (Z-direction) edges\n        edgeFilter = (e) => e.inDirection(\"Z\");\n    }\n    // ── Step 2: Apply fillet to each leaf geometry ──────────────────\n    const filletedAssembly = new Assembly(shape).onLeafs((leaf) => {\n        if (leaf.is3D() && Array.isArray(leaf.geometry) && leaf.geometry[0]) {\n            const solid = leaf.geometry[0];\n            const filleted = solid.fillet(radius, edgeFilter);\n            leaf.geometry = [filleted];\n        }\n        return leaf;\n    });\n    return filletedAssembly;\n}\n"
+      "interpreterVersion": 0,
+      "code": "const Inputs = [\n  { inputName: \"shape\", type: \"geometry\", defaultValue: null },\n  { inputName: \"radius\", type: \"number\", defaultValue: 2 },\n  { inputName: \"region\", type: \"geometry\", defaultValue: null },\n];\n\nlet assembly = library[shape];\n\nlet edgeFilter;\nif (region !== null) {\n  let bounds = await GetBounds(region);\n  console.log(\"bounds in old\", bounds)\n  edgeFilter = (e) => e.inDirection(\"Z\").inBox(bounds.min, bounds.max);\n} else {\n  edgeFilter = (e) => e.inDirection(\"Z\");\n}\n\nreturn await AssemblyMap(assembly, async (leaf) => {\n  let solid = leaf.geometry[0];\n  let filleted = solid.fillet(radius, edgeFilter);\n  return { ...leaf, geometry: [filleted] };\n});\n"
     },
     {
       "atomType": "Rectangle",
-      "x": 0.14875322441960448,
-      "y": 0.850609756097561,
+      "x": 0.27050264550264547,
+      "y": 0.9526462395543175,
       "uniqueID": "id-476",
       "ioValues": [
         {
           "name": "x length",
-          "ioValue": 100,
-          "currentEquation": "100"
+          "ioValue": 100
         },
         {
           "name": "y length",
-          "ioValue": 300,
-          "currentEquation": "300"
+          "ioValue": 100
         }
       ]
     },
     {
       "atomType": "Extrude",
-      "x": 0.2828890799656062,
-      "y": 0.8262195121951219,
+      "x": 0.37050264550264544,
+      "y": 0.9526462395543175,
       "uniqueID": "id-480",
       "ioValues": [
         {
@@ -132,15 +129,14 @@
         },
         {
           "name": "height",
-          "ioValue": 150,
-          "currentEquation": "150"
+          "ioValue": 150
         }
       ]
     },
     {
       "atomType": "Move",
-      "x": 0.4230438521066208,
-      "y": 0.8292682926829269,
+      "x": 0.49355116079105765,
+      "y": 0.8902439024390244,
       "uniqueID": "id-484",
       "ioValues": [
         {
@@ -149,18 +145,15 @@
         },
         {
           "name": "xDist",
-          "ioValue": 50,
-          "currentEquation": "50"
+          "ioValue": 20
         },
         {
           "name": "yDist",
-          "ioValue": 51,
-          "currentEquation": "51"
+          "ioValue": 20
         },
         {
           "name": "zDist",
-          "ioValue": -10,
-          "currentEquation": "-10"
+          "ioValue": 0
         }
       ]
     },
@@ -171,6 +164,29 @@
       "uniqueID": "id-490",
       "name": "Bounding_Box",
       "type": "geometry"
+    },
+    {
+      "atomType": "Code",
+      "x": 0.646603611349957,
+      "y": 0.3079268292682927,
+      "uniqueID": "id-523",
+      "ioValues": [
+        {
+          "name": "shape",
+          "ioValue": "__GEOMETRY_INPUT__"
+        },
+        {
+          "name": "radius",
+          "ioValue": 10
+        },
+        {
+          "name": "region",
+          "ioValue": "__GEOMETRY_INPUT__"
+        }
+      ],
+      "interpreterVersion": 1,
+      "code": "/**\n * Fillets vertical (Z-direction) edges on geometry with optional region-based filtering.\n * If a region is provided, only fillets edges within that bounding box.\n */\nfunction run(\n  shape: Assembly,\n  radius: number = 2,\n  region?: Assembly\n) {\n  // ── Step 1: Determine edge filter based on region ──────────────────\n  let edgeFilter: (e: any) => any;\n\n  if (region) {\n    try {\n      // Extract geometry from region (could be Assembly or direct 3D shape)\n      let regionGeo = region.geometry;\n\n      // If it's an array, get the first element\n      if (Array.isArray(regionGeo)) {\n        regionGeo = regionGeo[0];\n      }\n      console.log(regionGeo.boundingBox)\n      // Get bounding box from the 3D shape\n      const bounds = regionGeo.boundingBox.bounds\n      if (bounds) {\n        console.log(\"bounding\")\n        edgeFilter = (e) => e.inDirection(\"Z\").inBox(bounds[0], bounds[1]);\n      } else {\n        edgeFilter = (e) => e.inDirection(\"Z\");\n      }\n    } catch (err) {\n      // Fallback if bounds extraction fails\n      edgeFilter = (e) => e.inDirection(\"Z\");\n    }\n  } else {\n    // No region: fillet only vertical (Z-direction) edges\n    edgeFilter = (e) => e.inDirection(\"Z\");\n  }\n\n  // ── Step 2: Apply fillet to each leaf geometry ──────────────────\n  const filletedAssembly = new Assembly(shape).onLeafs((leaf) => {\n    if (leaf.is3D() && Array.isArray(leaf.geometry) && leaf.geometry[0]) {\n      const solid = leaf.geometry[0];\n      const filleted = solid.fillet(radius, edgeFilter);\n      leaf.geometry = [filleted];\n    }\n    return leaf;\n  });\n\n  return filletedAssembly;\n}",
+      "compiledCode": "\"use strict\";\n/**\n * Fillets vertical (Z-direction) edges on geometry with optional region-based filtering.\n * If a region is provided, only fillets edges within that bounding box.\n */\nfunction run(shape, radius = 2, region) {\n    // ── Step 1: Determine edge filter based on region ──────────────────\n    let edgeFilter;\n    if (region) {\n        try {\n            // Extract geometry from region (could be Assembly or direct 3D shape)\n            let regionGeo = region.geometry;\n            // If it's an array, get the first element\n            if (Array.isArray(regionGeo)) {\n                regionGeo = regionGeo[0];\n            }\n            console.log(regionGeo.boundingBox);\n            // Get bounding box from the 3D shape\n            const bounds = regionGeo.boundingBox.bounds;\n            if (bounds) {\n                console.log(\"bounding\");\n                edgeFilter = (e) => e.inDirection(\"Z\").inBox(bounds[0], bounds[1]);\n            }\n            else {\n                edgeFilter = (e) => e.inDirection(\"Z\");\n            }\n        }\n        catch (err) {\n            // Fallback if bounds extraction fails\n            edgeFilter = (e) => e.inDirection(\"Z\");\n        }\n    }\n    else {\n        // No region: fillet only vertical (Z-direction) edges\n        edgeFilter = (e) => e.inDirection(\"Z\");\n    }\n    // ── Step 2: Apply fillet to each leaf geometry ──────────────────\n    const filletedAssembly = new Assembly(shape).onLeafs((leaf) => {\n        if (leaf.is3D() && Array.isArray(leaf.geometry) && leaf.geometry[0]) {\n            const solid = leaf.geometry[0];\n            const filleted = solid.fillet(radius, edgeFilter);\n            leaf.geometry = [filleted];\n        }\n        return leaf;\n    });\n    return filletedAssembly;\n}\n"
     }
   ],
   "allConnectors": [
@@ -180,9 +196,19 @@
       "ap2ID": "id-471"
     },
     {
+      "ap2Name": "radius",
+      "ap1ID": "id-458",
+      "ap2ID": "id-523"
+    },
+    {
       "ap2Name": "geometry",
       "ap1ID": "id-461",
       "ap2ID": "id-465"
+    },
+    {
+      "ap2Name": "shape",
+      "ap1ID": "id-465",
+      "ap2ID": "id-523"
     },
     {
       "ap2Name": "shape",
@@ -207,6 +233,11 @@
     {
       "ap2Name": "region",
       "ap1ID": "id-484",
+      "ap2ID": "id-523"
+    },
+    {
+      "ap2Name": "region",
+      "ap1ID": "id-490",
       "ap2ID": "id-471"
     }
   ],
