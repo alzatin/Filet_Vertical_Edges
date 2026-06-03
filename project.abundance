@@ -82,8 +82,8 @@
     },
     {
       "atomType": "Code",
-      "x": 0.6612209802235598,
-      "y": 0.6402439024390244,
+      "x": 0.5649183147033534,
+      "y": 0.8902439024390244,
       "uniqueID": "id-471",
       "ioValues": [
         {
@@ -137,8 +137,8 @@
     },
     {
       "atomType": "Move",
-      "x": 0.470335339638865,
-      "y": 0.8140243902439025,
+      "x": 0.4453998280309544,
+      "y": 0.600609756097561,
       "uniqueID": "id-484",
       "ioValues": [
         {
@@ -169,8 +169,8 @@
     },
     {
       "atomType": "Code",
-      "x": 0.6104901117798797,
-      "y": 0.29878048780487804,
+      "x": 0.6801375752364575,
+      "y": 0.4085365853658537,
       "uniqueID": "id-523",
       "ioValues": [
         {
@@ -187,11 +187,16 @@
         }
       ],
       "interpreterVersion": 1,
-      "code": "/**\n * Fillets vertical (Z-direction) edges on geometry with optional region-based filtering.\n * If a region is provided, only fillets edges within that bounding box.\n */\nfunction run(\n  shape: Assembly,\n  radius: number = 2,\n  region?: Assembly\n) {\n  // ── Step 1: Determine edge filter based on region ──────────────────\n  let edgeFilter: (e: any) => any;\n\n  if (region) {\n    try {\n      // Extract geometry from region (could be Assembly or direct 3D shape)\n      let regionGeo = region.geometry;\n\n      // If it's an array, get the first element\n      if (Array.isArray(regionGeo)) {\n        regionGeo = regionGeo[0];\n      }\n      console.log(regionGeo.boundingBox)\n      // Get bounding box from the 3D shape\n      const bounds = regionGeo.boundingBox.bounds\n      if (bounds) {\n        console.log(\"bounding in new\")\n        console.log(bounds)\n        edgeFilter = (e) => e.inDirection(\"Z\").inBox(bounds[0], bounds[1]);\n        console.log(edgeFilter)\n      } else {\n        edgeFilter = (e) => e.inDirection(\"Z\");\n      }\n    } catch (err) {\n      // Fallback if bounds extraction fails\n      edgeFilter = (e) => e.inDirection(\"Z\");\n    }\n  } else {\n    // No region: fillet only vertical (Z-direction) edges\n    edgeFilter = (e) => e.inDirection(\"Z\");\n  }\n\n  // ── Step 2: Apply fillet to each leaf geometry ──────────────────\n  const filletedAssembly = new Assembly(shape).onLeafs((leaf) => {\n    if (leaf.is3D() && leaf.geometry) {\n      const solid = leaf.geometry;\n      const filleted = solid.fillet(radius);\n      leaf.geometry = [filleted];\n    }\n    return leaf;\n  });\n\n  return filletedAssembly;\n}",
-      "compiledCode": "\"use strict\";\n/**\n * Fillets vertical (Z-direction) edges on geometry with optional region-based filtering.\n * If a region is provided, only fillets edges within that bounding box.\n */\nfunction run(shape, radius = 2, region) {\n    // ── Step 1: Determine edge filter based on region ──────────────────\n    let edgeFilter;\n    if (region) {\n        try {\n            // Extract geometry from region (could be Assembly or direct 3D shape)\n            let regionGeo = region.geometry;\n            // If it's an array, get the first element\n            if (Array.isArray(regionGeo)) {\n                regionGeo = regionGeo[0];\n            }\n            console.log(regionGeo.boundingBox);\n            // Get bounding box from the 3D shape\n            const bounds = regionGeo.boundingBox.bounds;\n            if (bounds) {\n                console.log(\"bounding in new\");\n                console.log(bounds);\n                edgeFilter = (e) => e.inDirection(\"Z\").inBox(bounds[0], bounds[1]);\n                console.log(edgeFilter);\n            }\n            else {\n                edgeFilter = (e) => e.inDirection(\"Z\");\n            }\n        }\n        catch (err) {\n            // Fallback if bounds extraction fails\n            edgeFilter = (e) => e.inDirection(\"Z\");\n        }\n    }\n    else {\n        // No region: fillet only vertical (Z-direction) edges\n        edgeFilter = (e) => e.inDirection(\"Z\");\n    }\n    // ── Step 2: Apply fillet to each leaf geometry ──────────────────\n    const filletedAssembly = new Assembly(shape).onLeafs((leaf) => {\n        if (leaf.is3D() && leaf.geometry) {\n            const solid = leaf.geometry;\n            const filleted = solid.fillet(radius);\n            leaf.geometry = [filleted];\n        }\n        return leaf;\n    });\n    return filletedAssembly;\n}\n"
+      "code": "/**\n * Fillets vertical (Z-direction) edges on geometry with optional region-based filtering.\n * If a region is provided, only fillets edges within that bounding box.\n */\nfunction run(\n  shape: Assembly,\n  radius: number = 2,\n  region?: Assembly\n) {\n  // ── Step 1: Determine edge filter based on region ──────────────────\n  let edgeFilter: (e: any) => any;\n  let inputShape = shape\n\n  if (region) {\n    try {\n      // Extract geometry from region (could be Assembly or direct 3D shape)\n      let regionGeo = region.geometry;\n\n      // If it's an array, get the first element\n      if (Array.isArray(regionGeo)) {\n        regionGeo = regionGeo[0];\n      }\n      console.log(regionGeo.boundingBox)\n      // Get bounding box from the 3D shape\n      const bounds = regionGeo.boundingBox.bounds\n      if (bounds) {\n        console.log(\"bounding in new\")\n        console.log(bounds)\n        edgeFilter = (e) => e.inDirection(\"Z\").inBox(bounds[0], bounds[1]);\n        console.log(edgeFilter)\n      } else {\n        edgeFilter = (e) => e.inDirection(\"Z\");\n      }\n    } catch (err) {\n      // Fallback if bounds extraction fails\n      edgeFilter = (e) => e.inDirection(\"Z\");\n    }\n  } else {\n    // No region: fillet only vertical (Z-direction) edges\n    edgeFilter = (e) => e.inDirection(\"Z\");\n  }\n\n  // ── Step 2: Apply fillet to selected edges ──────────────────────────────\n  // If no edge selector is provided, fillet all edges.\n  // Pass a selector like (e) => e.inPlane(\"XY\", z) to fillet only specific edges.\n  let filletedGeometry = inputShape.geometry;\n  if (edgeFilter) {\n    filletedGeometry = inputShape.geometry.fillet(radius, edgeFilter);\n  } else {\n    filletedGeometry = inputShape.geometry.fillet(radius);\n  }\n\n  // ── Step 3: Wrap in an Assembly preserving upstream properties ──────────\n  // Color, tags, and BOM info are inherited from the input shape.\n  const result: Assembly = new Assembly({\n    geometry: filletedGeometry,\n    color: inputShape.color,\n    tags: inputShape.tags,\n    plane: inputShape.plane,\n    bom: inputShape.bom,\n  });\n  return result;\n}",
+      "compiledCode": "\"use strict\";\n/**\n * Fillets vertical (Z-direction) edges on geometry with optional region-based filtering.\n * If a region is provided, only fillets edges within that bounding box.\n */\nfunction run(shape, radius = 2, region) {\n    // ── Step 1: Determine edge filter based on region ──────────────────\n    let edgeFilter;\n    let inputShape = shape;\n    if (region) {\n        try {\n            // Extract geometry from region (could be Assembly or direct 3D shape)\n            let regionGeo = region.geometry;\n            // If it's an array, get the first element\n            if (Array.isArray(regionGeo)) {\n                regionGeo = regionGeo[0];\n            }\n            console.log(regionGeo.boundingBox);\n            // Get bounding box from the 3D shape\n            const bounds = regionGeo.boundingBox.bounds;\n            if (bounds) {\n                console.log(\"bounding in new\");\n                console.log(bounds);\n                edgeFilter = (e) => e.inDirection(\"Z\").inBox(bounds[0], bounds[1]);\n                console.log(edgeFilter);\n            }\n            else {\n                edgeFilter = (e) => e.inDirection(\"Z\");\n            }\n        }\n        catch (err) {\n            // Fallback if bounds extraction fails\n            edgeFilter = (e) => e.inDirection(\"Z\");\n        }\n    }\n    else {\n        // No region: fillet only vertical (Z-direction) edges\n        edgeFilter = (e) => e.inDirection(\"Z\");\n    }\n    // ── Step 2: Apply fillet to selected edges ──────────────────────────────\n    // If no edge selector is provided, fillet all edges.\n    // Pass a selector like (e) => e.inPlane(\"XY\", z) to fillet only specific edges.\n    let filletedGeometry = inputShape.geometry;\n    if (edgeFilter) {\n        filletedGeometry = inputShape.geometry.fillet(radius, edgeFilter);\n    }\n    else {\n        filletedGeometry = inputShape.geometry.fillet(radius);\n    }\n    // ── Step 3: Wrap in an Assembly preserving upstream properties ──────────\n    // Color, tags, and BOM info are inherited from the input shape.\n    const result = new Assembly({\n        geometry: filletedGeometry,\n        color: inputShape.color,\n        tags: inputShape.tags,\n        plane: inputShape.plane,\n        bom: inputShape.bom,\n    });\n    return result;\n}\n"
     }
   ],
   "allConnectors": [
+    {
+      "ap2Name": "shape",
+      "ap1ID": "id-455",
+      "ap2ID": "id-523"
+    },
     {
       "ap2Name": "radius",
       "ap1ID": "id-458",
@@ -210,17 +215,7 @@
     {
       "ap2Name": "shape",
       "ap1ID": "id-465",
-      "ap2ID": "id-523"
-    },
-    {
-      "ap2Name": "shape",
-      "ap1ID": "id-465",
       "ap2ID": "id-471"
-    },
-    {
-      "ap2Name": "number or geometry",
-      "ap1ID": "id-471",
-      "ap2ID": "id-449"
     },
     {
       "ap2Name": "geometry",
@@ -235,12 +230,17 @@
     {
       "ap2Name": "region",
       "ap1ID": "id-484",
-      "ap2ID": "id-523"
+      "ap2ID": "id-471"
     },
     {
       "ap2Name": "region",
-      "ap1ID": "id-484",
-      "ap2ID": "id-471"
+      "ap1ID": "id-490",
+      "ap2ID": "id-523"
+    },
+    {
+      "ap2Name": "number or geometry",
+      "ap1ID": "id-523",
+      "ap2ID": "id-449"
     }
   ],
   "unitsKey": "MM",
