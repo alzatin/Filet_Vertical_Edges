@@ -81,28 +81,6 @@
       ]
     },
     {
-      "atomType": "Code",
-      "x": 0.5649183147033534,
-      "y": 0.8902439024390244,
-      "uniqueID": "id-471",
-      "ioValues": [
-        {
-          "name": "shape",
-          "ioValue": "__GEOMETRY_INPUT__"
-        },
-        {
-          "name": "radius",
-          "ioValue": 5
-        },
-        {
-          "name": "region",
-          "ioValue": "__GEOMETRY_INPUT__"
-        }
-      ],
-      "interpreterVersion": 0,
-      "code": "const Inputs = [\n  { inputName: \"shape\", type: \"geometry\", defaultValue: null },\n  { inputName: \"radius\", type: \"number\", defaultValue: 2 },\n  { inputName: \"region\", type: \"geometry\", defaultValue: null },\n];\n\nlet assembly = library[shape];\n\nlet edgeFilter;\nif (region !== null) {\n  let bounds = await GetBounds(region);\n  console.log(\"bounds in old\", bounds)\n  edgeFilter = (e) => e.inDirection(\"Z\").inBox(bounds.min, bounds.max);\n} else {\n  edgeFilter = (e) => e.inDirection(\"Z\");\n}\n\nreturn await AssemblyMap(assembly, async (leaf) => {\n  let solid = leaf.geometry[0];\n  let filleted = solid.fillet(radius, edgeFilter);\n  return { ...leaf, geometry: [filleted] };\n});\n"
-    },
-    {
       "atomType": "Rectangle",
       "x": 0.1840068787618229,
       "y": 0.771341463414634,
@@ -200,22 +178,12 @@
     {
       "ap2Name": "radius",
       "ap1ID": "id-458",
-      "ap2ID": "id-471"
-    },
-    {
-      "ap2Name": "radius",
-      "ap1ID": "id-458",
       "ap2ID": "id-523"
     },
     {
       "ap2Name": "geometry",
       "ap1ID": "id-461",
       "ap2ID": "id-465"
-    },
-    {
-      "ap2Name": "shape",
-      "ap1ID": "id-465",
-      "ap2ID": "id-471"
     },
     {
       "ap2Name": "geometry",
@@ -226,11 +194,6 @@
       "ap2Name": "geometry",
       "ap1ID": "id-480",
       "ap2ID": "id-484"
-    },
-    {
-      "ap2Name": "region",
-      "ap1ID": "id-484",
-      "ap2ID": "id-471"
     },
     {
       "ap2Name": "region",
